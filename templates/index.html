@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Mental Health Analyzer</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            min-height: 100vh;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 15px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        h2 { 
+            color: #667eea; 
+            text-align: center; 
+            margin-bottom: 10px;
+            font-size: 2.5em;
+            letter-spacing: -0.5px;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #999;
+            margin-bottom: 40px;
+            font-size: 16px;
+        }
+        
+        h3 { 
+            color: #764ba2; 
+            margin-top: 30px; 
+            margin-bottom: 20px;
+            font-size: 1.5em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        h3:before {
+            content: '';
+            width: 4px;
+            height: 28px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 2px;
+        }
+        
+        .section-card {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            border: 1px solid #e8eaf6;
+            transition: all 0.3s ease;
+        }
+        
+        .section-card:hover {
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.1);
+            border-color: #667eea;
+        }
+        
+        .form-group { 
+            margin-bottom: 20px;
+            animation: slideIn 0.5s ease-out;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        label { 
+            display: block; 
+            font-weight: 600; 
+            margin-bottom: 10px; 
+            color: #333;
+            font-size: 15px;
+        }
+        
+        select, textarea { 
+            width: 100%; 
+            padding: 12px 15px; 
+            border: 2px solid #e0e0e0; 
+            border-radius: 8px; 
+            font-size: 14px;
+            font-family: inherit;
+            transition: all 0.3s ease;
+        }
+        
+        select:focus, textarea:focus { 
+            outline: none; 
+            border-color: #667eea; 
+            box-shadow: 0 0 10px rgba(102, 126, 234, 0.2);
+            background: #fafbff;
+        }
+        
+        textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        
+        button { 
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white; 
+            padding: 14px 28px; 
+            border: none; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        button[type="submit"],
+        button[type="button"] {
+            display: block;
+            width: 100%;
+            margin: 0;
+        }
+        
+        #faceSubmitBtn {
+            margin-top: 15px;
+        }
+        
+        .loading { 
+            display: none; 
+            color: #667eea; 
+            font-weight: bold;
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+        
+        .error { 
+            color: #e74c3c; 
+            padding: 15px; 
+            background: #fadbd8; 
+            border-radius: 8px; 
+            margin-top: 12px;
+            border-left: 4px solid #e74c3c;
+            animation: shake 0.3s ease;
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+        
+        .success { 
+            color: #27ae60; 
+            padding: 15px; 
+            background: #d5f4e6; 
+            border-radius: 8px; 
+            margin-top: 12px;
+            border-left: 4px solid #27ae60;
+            animation: slideIn 0.3s ease;
+        }
+        
+        .camera-container {
+            background: #000;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 20px 0;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+        }
+        
+        video { 
+            width: 100%;
+            max-width: 400px;
+            display: block;
+            margin: 0 auto;
+        }
+        
+        canvas { display: none; }
+        
+        .result-box { 
+            background: linear-gradient(135deg, #f8f9fa 0%, #f0f2ff 100%);
+            padding: 25px; 
+            border-radius: 10px; 
+            border-left: 5px solid #667eea; 
+            margin-top: 30px;
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.1);
+            animation: slideIn 0.5s ease-out;
+        }
+        
+        .result-box p { 
+            margin: 15px 0; 
+            line-height: 1.8;
+            font-size: 16px;
+        }
+        
+        .emotion-preview { 
+            font-size: 16px; 
+            font-weight: 600; 
+            color: #667eea; 
+            margin-top: 8px;
+            padding: 10px;
+            background: rgba(102, 126, 234, 0.1);
+            border-radius: 6px;
+            animation: slideIn 0.3s ease;
+        }
+        
+        img { 
+            border-radius: 10px; 
+            margin-top: 20px;
+            max-width: 100%;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+            transition: transform 0.3s ease;
+        }
+        
+        img:hover {
+            transform: scale(1.02);
+        }
+        
+        hr { 
+            border: none; 
+            border-top: 2px solid #e8eaf6; 
+            margin: 40px 0;
+        }
+        
+        .progress-bar {
+            height: 3px;
+            background: #e0e0e0;
+            border-radius: 2px;
+            margin-top: 5px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+<h2>🧠 Mental Health Analyzer</h2>
+<p class="subtitle">Understand your mental wellness through AI-powered analysis</p>
+
+<!-- LIVE CAMERA -->
+<div class="section-card">
+<h3>📸 Live Face Capture</h3>
+
+<div class="camera-container">
+<video id="video" autoplay playsinline aria-label="Live camera feed"></video>
+</div>
+
+<button type="button" onclick="capture()">📷 Capture Face</button>
+<div id="captureStatus"></div>
+
+<canvas id="canvas" width="320" height="240"></canvas>
+
+<form method="POST" action="/upload_face" id="faceForm">
+    <input type="hidden" name="image_data" id="image_data">
+    <button type="submit" id="faceSubmitBtn">✓ Submit Face</button>
+</form>
+
+{% if image_path %}
+    <h4 style="margin-top: 20px; color: #764ba2;">Captured Image:</h4>
+    <img src="{{ image_path }}" width="250" alt="Captured face">
+{% endif %}
+</div>
+
+<hr>
+
+<!-- PSYCHOLOGICAL QUESTIONS + TEXT -->
+<form method="POST" action="/analyze_all" id="analyzeForm">
+
+<div class="section-card">
+<h3>🧠 Psychological Check</h3>
+
+<div class="form-group">
+<label for="sleep">1. How has your sleep been over the past few days?</label>
+<select name="sleep" id="sleep" required aria-label="Sleep quality">
+  <option value="">-- Select --</option>
+  <option value="normal">Normal</option>
+  <option value="disturbed">Disturbed</option>
+  <option value="poor">Very poor</option>
+</select>
+</div>
+
+<div class="form-group">
+<label for="stress_freq">2. How often do you feel overwhelmed by daily tasks?</label>
+<select name="stress_freq" id="stress_freq" required aria-label="Stress frequency">
+  <option value="">-- Select --</option>
+  <option value="rare">Rarely</option>
+  <option value="sometimes">Sometimes</option>
+  <option value="often">Often</option>
+</select>
+</div>
+
+<div class="form-group">
+<label for="interest">3. Do you find it difficult to stay focused or interested in activities?</label>
+<select name="interest" id="interest" required aria-label="Focus and interest level">
+  <option value="">-- Select --</option>
+  <option value="no">No</option>
+  <option value="sometimes">Occasionally</option>
+  <option value="yes">Most of the time</option>
+</select>
+</div>
+
+<div class="form-group">
+<label for="text">📝 Write what you are feeling:</label>
+<textarea name="text" id="text" placeholder="Share your thoughts and feelings..." aria-label="Personal feelings"></textarea>
+<div class="emotion-preview" id="emotionPreview"></div>
+</div>
+
+<div class="button-group">
+<button type="submit" id="submitBtn">🔍 Analyze Mental Health</button>
+<div class="loading" id="loading">⏳ Analyzing...</div>
+</div>
+<div id="formError"></div>
+</div>
+</form>
+
+{% if final_result %}
+<hr>
+<h3>📊 Analysis Result</h3>
+<div class="result-box">
+<p><b>😊 Face Emotion:</b> <span style="color: #667eea; font-weight: 700;">{{ face_emotion }}</span> <span style="color: #999;">({{ face_conf }}%)</span></p>
+<div class="progress-bar"><div class="progress-fill" style="width: {{ face_conf }}%;"></div></div>
+
+<p style="margin-top: 20px;"><b>💬 Text Emotion:</b> <span style="color: #667eea; font-weight: 700;">{{ text_emotion }}</span> <span style="color: #999;">({{ text_conf }}%)</span></p>
+<div class="progress-bar"><div class="progress-fill" style="width: {{ text_conf }}%;"></div></div>
+
+<p style="margin-top: 20px;"><b>⚡ Stress Level:</b> <span style="color: #e74c3c; font-weight: 700;">{{ stress_level }}</span></p>
+
+<p style="margin-top: 20px;"><b>🤖 AI Explanation:</b> {{ explanation }}</p>
+
+<p style="margin-top: 20px;"><b>💡 Suggestion:</b> <span style="color: #27ae60; font-weight: 600;">{{ suggestion }}</span></p>
+</div>
+{% endif %}
+
+</div>
+
+<script>
+let videoStream = null;
+let faceCaptured = false;
+
+navigator.mediaDevices.getUserMedia({ video: true })
+    .then(stream => {
+        videoStream = stream;
+        document.getElementById("video").srcObject = stream;
+    })
+    .catch(err => {
+        document.getElementById("captureStatus").innerHTML = '<div class="error">❌ Camera access denied. Please enable camera permissions.</div>';
+    });
+
+function capture() {
+    const video = document.getElementById("video");
+    const canvas = document.getElementById("canvas");
+    const ctx = canvas.getContext("2d");
+
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    document.getElementById("image_data").value = canvas.toDataURL("image/png");
+    faceCaptured = true;
+    document.getElementById("captureStatus").innerHTML = '<div class="success">✅ Face captured successfully!</div>';
+}
+
+// Form validation
+document.getElementById("analyzeForm").addEventListener("submit", function(e) {
+    const sleep = document.getElementById("sleep").value;
+    const stress = document.getElementById("stress_freq").value;
+    const interest = document.getElementById("interest").value;
+    const text = document.getElementById("text").value.trim();
+    
+    const errorDiv = document.getElementById("formError");
+    if (!sleep || !stress || !interest) {
+        e.preventDefault();
+        errorDiv.innerHTML = '<div class="error">⚠️ Please answer all questions</div>';
+        return;
+    }
+    if (text.length < 5) {
+        e.preventDefault();
+        errorDiv.innerHTML = '<div class="error">⚠️ Please write at least 5 characters about your feelings</div>';
+        return;
+    }
+    
+    document.getElementById("submitBtn").disabled = true;
+    document.getElementById("loading").style.display = "block";
+});
+
+// Real-time emotion preview
+document.getElementById("text").addEventListener("input", function() {
+    const text = this.value.trim();
+    if (text.length > 5) {
+        fetch("/preview_emotion", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ text: text })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.emotion) {
+                document.getElementById("emotionPreview").textContent = `🎯 Detected emotion: ${data.emotion}`;
+            }
+        })
+        .catch(err => console.log("Preview unavailable"));
+    }
+});
+
+// Face form validation
+document.getElementById("faceForm").addEventListener("submit", function(e) {
+    if (!faceCaptured) {
+        e.preventDefault();
+        document.getElementById("captureStatus").innerHTML = '<div class="error">⚠️ Please capture your face first</div>';
+    } else {
+        document.getElementById("faceSubmitBtn").disabled = true;
+    }
+});
+</script>
+
+</body>
+</html>
